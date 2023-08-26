@@ -4,24 +4,24 @@
 
 @if (Categories is null)
 {
-    <h1>Loading</h1>
+    <h1 class="bg-blue-800">Loading</h1>
 }
 else
 {
-    <div>
+    <div class="flex  w-full m-2">
         <span>Add Category</span>
-        <input @bind="@CategoryName" />
-        <button @onclick="AddCategory">Add</button>
-        <button @onclick="UpdateCategory">Update</button>
-        <button @onclick="DeleteCategory">Delete</button>
+        <input class="border-blue-600 border-2 w-5/12 m-3 p-2" @bind="@CategoryName" />
+        <button class="bg-green-700 px-2  text-center text-white rounded cursor-pointer m-1" @onclick="AddCategory">Add</button>
+        <button class="bg-amber-500 px-2  text-center text-white rounded cursor-pointer m-1" @onclick="UpdateCategory">Update</button>
+        <button class="bg-red-700 px-2  text-center text-white rounded cursor-pointer m-1" @onclick="DeleteCategory">Delete</button>
     </div>
 
 
     <h4>List of Categories</h4>
-    <select @onchange="SelectedItem" size="10" style="width:100%;">
+    <select class="bg-green-200" @onchange="SelectedItem" size="10" style="width:100%;">
         @foreach (var Item in Categories)
         {
-            <option value="@Item.Id">@Item.Name</option>
+            <option class="bg-white p-2" value="@Item.Id">@Item.Name</option>
         }
     </select>
     <span style="color:red;">@ErrorMessage</span>
