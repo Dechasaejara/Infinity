@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Infinity.Server.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class ExercisesController : EFBaseController<Exercise, InfinityDbContext>
     {

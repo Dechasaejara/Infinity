@@ -40,10 +40,9 @@ else
 // Allow CORS to Accept Request from  localhost
 app.UseCors(options =>
            options
-           //.WithOrigins("http:\//localhost:3000")
-           .WithOrigins()
-           .AllowAnyMethod()
-           .AllowAnyHeader());
+               .AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader());
 
 app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();

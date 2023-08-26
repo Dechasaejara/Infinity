@@ -1,3 +1,153 @@
 ﻿@page "/"
+@inject CategoryManager CategoryManager
 
-<h1>Hello, world!</h1>
+
+@if (Categories is null)
+{
+    <h1>Loading</h1>
+}
+else
+{
+    <div>
+        <span>Add Category</span>
+        <input @bind="@CategoryName" />
+        <button @onclick="AddCategory">Add</button>
+        <button @onclick="UpdateCategory">Update</button>
+        <button @onclick="DeleteCategory">Delete</button>
+    </div>
+
+
+    <h4>List of Categories</h4>
+    <select @onchange="SelectedItem" size="10" style="width:100%;">
+        @foreach (var Item in Categories)
+        {
+            <option value="@Item.Id">@Item.Name</option>
+        }
+    </select>
+    <span style="color:red;">@ErrorMessage</span>
+}
+
+
+@code {
+    #region Variables Declaration
+    List<CategoryDTO> Categories;
+    CategoryDTO Category;
+    string CategoryName;
+    string ErrorMessage = "";
+    string SearchName = "";
+    #endregion
+    #region OnInitialized
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAllCategories();
+    }
+    #endregion
+    #region Get By Value
+    async Task Get()
+    {
+        ErrorMessage = "";
+        var result = await CategoryManager.GetByValue("Name", SearchName);
+        if (result != null)
+        {
+            Categories.Clear();
+            Categories.Add(result);
+        }
+        else
+        {
+            Categories = new List<CategoryDTO>();
+            ErrorMessage = "No matching Category.";
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+    #endregion
+    #region Get All
+    async Task GetAllCategories()
+    {
+        ErrorMessage = "";
+        try
+        {
+            var result = await CategoryManager.GetAll();
+            if (result != null)
+            {
+                Categories = result.ToList<CategoryDTO>();
+                Category = null;
+            }
+            else
+            {
+                ErrorMessage = "Could not fetch Categories";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+    }
+    #endregion
+    #region Add Item
+    async Task AddCategory()
+    {
+        var category = new CategoryDTO();
+        category.Name = CategoryName;
+        var result = await CategoryManager.Insert(category);
+        if (result is not null)
+        {
+            Categories.Add(result);
+            Category = result;
+        }
+        else
+        {
+            ErrorMessage = "Could not add Category";
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+    #endregion
+    #region Update Item
+    async Task UpdateCategory()
+    {
+        ErrorMessage = "";
+        var orginalItem = (from c in Categories where c.Id == Category.Id select c).FirstOrDefault();
+        if (orginalItem is not null)
+        {
+            orginalItem.Name = CategoryName;
+            var updatedData = await CategoryManager.Update(orginalItem);
+            if (updatedData is not null)
+            {
+                ErrorMessage = "Category Updated";
+                await InvokeAsync(StateHasChanged);
+            }
+
+        }
+    }
+    #endregion
+    #region Delete Item
+    async Task DeleteCategory()
+    {
+        ErrorMessage = "";
+        if (await CategoryManager.Delete(Category))
+        {
+            var orginal = (from c in Categories where c.Id == Category.Id select c).FirstOrDefault();
+            if (orginal is not null)
+            {
+                var index = Categories.IndexOf(orginal);
+                Categories.RemoveAt(index);
+                Category = null;
+            }
+        }
+        else
+        {
+            ErrorMessage = "Could not delete Category.";
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+    #endregion
+    #region OnchangeEvents
+    async Task SelectedItem(ChangeEventArgs args)
+    {
+        ErrorMessage = "";
+        var result = (from c in Categories where c.Id.ToString() == args?.Value?.ToString() select c).FirstOrDefault();
+        Category = await CategoryManager.GetByValue("Id", result?.Id.ToString());
+        CategoryName = Category.Name;
+        await InvokeAsync(StateHasChanged);
+    }
+    #endregion
+}
